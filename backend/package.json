@@ -1,0 +1,15 @@
+{
+  "name": "smart-tasker-backend",
+  "version": "1.0.0",
+  "description": "A basic Express.js application with routing and middleware",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "module"
+}
