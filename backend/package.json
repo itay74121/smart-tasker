@@ -4,7 +4,8 @@
   "description": "A basic Express.js application with routing and middleware",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app.js"
+    "start": "node ./src/server.js",
+    "test":"jest"
   },
   "dependencies": {
     "express": "^4.18.2"
