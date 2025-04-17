@@ -30,7 +30,7 @@ router.post("/login",(req,res,next)=>{
             var s = res.status(status)
             if (status === StatusCodes.ACCEPTED){
                 var secret = process.env.SECRET
-                var token = jsonwb.sign({username:username},secret,{"algorithm":"HS256",expiresIn:2*60*24})
+                var token = jsonwb.sign({username:username},secret,{"algorithm":"HS256",expiresIn:2*60*24*1000})
                 s = s.header("Authorization",token)
             }
             s.send({message:desc})

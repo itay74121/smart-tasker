@@ -3,7 +3,10 @@ import { logger } from './middlewears/logger.js';
 import { setRoutes } from './routes/index.js';
 import { mongooseConnected } from './middlewears/mongo.js';
 import {expressjwt} from 'express-jwt'
+import { config } from 'dotenv';
 import cors from 'cors'
+
+config()
 
 const app = express();
 const PORT = process.env.PORT || 3000;
