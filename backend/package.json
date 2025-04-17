@@ -2,13 +2,20 @@
   "name": "smart-tasker-backend",
   "version": "1.0.0",
   "description": "A basic Express.js application with routing and middleware",
-  "main": "src/app.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node ./src/server.js",
-    "test":"jest"
+    "start": "nodemon ./src/server.js",
+    "test": "jest"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "axios": "^1.8.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.18.2",
+    "http-status-codes": "^2.3.0",
+    "jest": "^29.7.0",
+    "mongoose": "^8.13.2",
+    "nodemon": "^3.1.9"
   },
   "author": "",
   "license": "ISC",

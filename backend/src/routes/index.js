@@ -1,5 +1,6 @@
 import express from 'express';
-import { router as HealthRoute } from './api/health.js';
+import health from '../controllers/health.js';
+import register from "../controllers/register.js"
 const router = express.Router();
 
 router.get('/', (req, res) => {
@@ -8,5 +9,6 @@ router.get('/', (req, res) => {
 
 export const setRoutes = (app) => {
     app.use('/', router);
-    app.use('/api', HealthRoute);
+    app.use('/api', health);
+    app.use('/api', register);
 };
