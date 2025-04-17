@@ -12,13 +12,12 @@ router.post("/register", async (req,res,next)=>{
     var status = StatusCodes.CREATED
     var reason = ReasonPhrases.CREATED
     if (mongoose.connection.readyState === 1){
-        const {username, email, passwordhash} = req.body
+        const {username, email,name, lastname, role, passwordhash} = req.body
         // check if exists
-        var ans = await UsersModel.find({equals:{
-            username:username
-        }})
+        var userexist = await UsersModel.find({username:{$eq:username}})
+        var emailexist = await UsersModel.find({email:{$eq:email}})
         // insert one if not 
-        if (ans.length === 0){
+        if (userexist.length === 0 && emailexist.length === 0){
             UsersModel.insertOne({
                 username:username,
                 email:email,
@@ -26,6 +25,11 @@ router.post("/register", async (req,res,next)=>{
                 lastname:lastname,
                 password:passwordhash,
                 role:role
+            }).then((val)=>{
+                console.log(val)
+            }).catch((reason)=>{
+                status = StatusCodes.INTERNAL_SERVER_ERROR
+                reason = ReasonPhrases.INTERNAL_SERVER_ERROR
             })
         } 
         else{

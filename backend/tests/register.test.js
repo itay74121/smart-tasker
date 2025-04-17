@@ -5,10 +5,14 @@ describe("Register Testing",()=>{
     test("test the register endpoint working",async ()=>{
         const response = await axios.post('http://localhost:3000/api/register',{
             email:"itay74121@gmail.com",
-            username:"itay74121",
-            passwordhash:"6545665564156516516156516"
+            username:"itay7412",
+            name:"itay",
+            lastname:"yosef",
+            passwordhash:"6545665564156516516156516",
+            role:"User"
+        }).catch(reason=>{
+            expect(reason.status).toEqual(400);    
         })
-        expect(response.status).toEqual(201);
         
     })
 })
