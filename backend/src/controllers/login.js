@@ -12,7 +12,8 @@ router.post("/login",(req,res,next)=>{
     const {username, passwordhash} = req.body
     var status = StatusCodes.ACCEPTED
     var desc = ReasonPhrases.ACCEPTED
-    UsersModel.find({
+    var _id = ""
+    UsersModel.findOne({
         username:{
             $eq:username
         },
@@ -20,9 +21,7 @@ router.post("/login",(req,res,next)=>{
             $eq:passwordhash
         }
         }).then(res=>{
-            if (res.length !== 1){
-                throw "Failed Log in"
-            }
+            _id = res._id
         }).catch((reason)=>{
             status = StatusCodes.INTERNAL_SERVER_ERROR
             desc = ReasonPhrases.INTERNAL_SERVER_ERROR
@@ -30,7 +29,7 @@ router.post("/login",(req,res,next)=>{
             var s = res.status(status)
             if (status === StatusCodes.ACCEPTED){
                 var secret = process.env.SECRET
-                var token = jsonwb.sign({username:username},secret,{"algorithm":"HS256",expiresIn:2*60*24*1000})
+                var token = jsonwb.sign({username:username, _id:_id},secret,{"algorithm":"HS256",expiresIn:2*60*24*1000})
                 s = s.header("Authorization",token)
             }
             s.send({message:desc})
