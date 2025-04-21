@@ -12,7 +12,6 @@ describe("Register Testing",()=>{
             console.log(res.headers )
         })
         .catch(reason=>{
-            console.log(reason)
         })  
     })
 })

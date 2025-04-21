@@ -35,7 +35,6 @@ router.post("/tasks", async (req, res, next) => {
     });
 
     res.status(StatusCodes.CREATED).send(task);
-    next();
 });
 
 router.get("/tasks", async (req,res,next)=>{ 
@@ -71,7 +70,6 @@ router.get("/tasks", async (req,res,next)=>{
         }
     }
     res.status(status).header('authorization',req.header('authorization')).send(reason)
-    next()
 })
 
 router.get("/tasks/:id", async (req,res,next)=>{ 
@@ -85,19 +83,13 @@ router.get("/tasks/:id", async (req,res,next)=>{
         next()
         return
     }
-    const username = req.auth.username
-    const uid = cache.has(username) ? 
-    cache.get(username)._id
-    : await UsersModel.find({username:{
-        $eq:username
-    }})
-    if (!cache.has(username)) {cache.set(username,uid)}
+    const id = req.auth._id
     const taskid = req.params.id
     const task = await TaskModel.findOne({
         _id: taskid,          // or `id: taskid` if you really named it “id”
         $or: [
-          { assignee: uid },
-          { createdBy: uid }
+          { assignee: id },
+          { createdBy: id }
         ]
       });    
     if (!task){
@@ -109,38 +101,68 @@ router.get("/tasks/:id", async (req,res,next)=>{
         reason = task
     }
     res.status(status).header('authorization',req.header('authorization')).send(reason)
-    next()
 })
 
 router.put("/tasks/:id", async (req,res,next)=>{ 
     /*
     This endpoint will not return jwt back.
      */
-    var status = StatusCodes.CREATED
-    var reason = ReasonPhrases.CREATED
-    
-    res.status(status).send(reason)
-    next()
+    var status = StatusCodes.OK
+    var reason = ReasonPhrases.OK
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)){
+        res.status(StatusCodes.NOT_FOUND).header('authorization',req.header('authorization')).send({message:ReasonPhrases.NOT_FOUND})
+        next()
+        return 
+    }
+    if (validateOwnerUserTask(req.auth._id,req.params.id)) {
+        var updatevals = req.body
+        const fields = ['title','description','assignee','priority','status','dueDate']
+        for (const [key,value] of Object.entries(updatevals)){
+            if (!fields.includes(key)){
+                delete updatevals[key]
+            }
+        }
+        reason = await TaskModel.updateOne({_id:{$eq:req.params.id}},updatevals)
+    } 
+    else{
+        status = StatusCodes.NOT_FOUND
+        reason = {message:ReasonPhrases.NOT_FOUND}
+    }
+    res.status(status).header('authorization',req.header('authorization')).send(reason)
 })
 
-router.delete("/tasks/:id", async (req,res,next)=>{ 
-    /*
-    This endpoint will not return jwt back.
-     */
-    var status = StatusCodes.OK
-    var reason = {_id: req.params.id}
-    if (mongoose.Types.ObjectId.isValid(req.auth._id) && mongoose.Types.ObjectId.isValid(req.params.id)){
-        const response = await TaskModel.deleteOne({
-            _id:{$eq: req.params.id},
-            createdBy:{$eq: req.auth._id}
-        }).catch(error => {
-            status = StatusCodes.NOT_FOUND
-            reason = {message: error}
-        })
-        
+router.delete("/tasks/:id", async (req, res, next) => {
+    var status = StatusCodes.OK;
+    var reason = { _id: req.params.id };
+
+    if (mongoose.Types.ObjectId.isValid(req.auth._id) && mongoose.Types.ObjectId.isValid(req.params.id)) {
+        try {
+            const response = await TaskModel.deleteOne({
+                _id: { $eq: req.params.id },
+                createdBy: { $eq: req.auth._id }
+            });
+
+            if (response.deletedCount === 0) {
+                if (!await TaskModel.findById(req.params.id)){
+                    status = StatusCodes.UNAUTHORIZED;
+                    reason = { message: ReasonPhrases.UNAUTHORIZED };
+                }
+                else{
+                    status = StatusCodes.NOT_FOUND;
+                    reason = { message: ReasonPhrases.NOT_FOUND };
+                }
+
+            }
+        } catch (error) {
+            status = StatusCodes.INTERNAL_SERVER_ERROR;
+            reason = { message: error.message };
+        }
+    } else {
+        status = StatusCodes.NOT_FOUND;
+        reason = { message: "Invalid ID format." };
     }
-    res.status(status).send(reason)
-    next()
+
+    res.status(status).send(reason);
 })
 
 
@@ -185,5 +207,23 @@ async function validation({ title, description, assignee, priority, dueDate, cre
 
     return { isValid: true };
 }
+async function validateUser(uid) {
+    if (!mongoose.Types.ObjectId.isValid(uid)) return false;
+    try {
+        const user = await UsersModel.findById(uid);
+        return !!user; // Return true if user exists, false otherwise
+    } catch (error) {
+        return false; // Handle database errors gracefully
+    }
+}
 
+async function validateOwnerUserTask(uid, task) {
+    if (await validateUser(uid) && mongoose.Types.ObjectId.isValid(task)) {
+        const taskDoc = await TaskModel.findById(task);
+        if (!taskDoc) return false; // Handle case where task is not found
+        return taskDoc.createdBy === uid;
+    } else {
+        return false;
+    }
+}
 export default router;

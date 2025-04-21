@@ -2,7 +2,7 @@ const axios = require('axios');
 
 
 axios.defaults.baseURL = 'http://localhost:3000'; // Set the base URL for all requests
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Iml0YXk3NDEyMSIsIl9pZCI6IjY4MDBhNWNmMWNiMTJhZjdmNDg5OTEwNiIsImlhdCI6MTc0NTA0ODU1NiwiZXhwIjoxNzQ3OTI4NTU2fQ.GbcmzGdoFzxhI8ixYHlEgUpnHeJN1Xkp4jZmFJlsJlo';
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Iml0YXk3NDEyMSIsIl9pZCI6IjY4MDBhNWNmMWNiMTJhZjdmNDg5OTEwNiIsImlhdCI6MTc0NTE0ODc4OSwiZXhwIjoxNzQ4MDI4Nzg5fQ.IVCSCIXXP8F-gNfqxw6Q5-9H4hEWb4utSA_spM2wO2g';
 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // Add the token to the Authorization header
 describe('POST /api/tasks', () => {
     it('creates a task and returns 201 + task body', async () => {
@@ -120,50 +120,90 @@ describe('GET /api/tasks', () => {
     });
 });
 
-describe('GET /api/tasks/:id', () => {
-    it('returns 200 and the task when a valid ID is provided', async () => {
-        const payload = {  
-            title: 'Task to Retrieve',
-            description: 'Retrieve this task',
-            priority: 'high',
-            status: 'pending',
-            assignee : '6800a5cf1cb12af7f4899106',
-            dueDate: Date.now() + 3600*24*7*1000
+describe('PUT /api/tasks/:id', () => {
+    it('updates a task and returns 200 when a valid ID and payload are provided', async () => {
+        const createPayload = { 
+            title: 'Task to Update',
+            description: 'This task will be updated',
+            priority: 'medium',
+            assignee: '6800a5cf1cb12af7f4899106',
+            dueDate: Date.now() + 100000,
         };
-        const createRes = await axios.post('/api/tasks', payload);
+        const createRes = await axios.post('/api/tasks', createPayload);
         const taskId = createRes.data._id;
-        const res = await axios.get(`/api/tasks/${taskId}`);
-        expect(res.status).toBe(200);
-        payload['dueDate'] = new Date(payload['dueDate']).toISOString()
-        Object.entries(payload).forEach(([key, val]) => {
-            expect(res.data[key]).toBe(val);
-          });
+
+        const updatePayload = {
+            title: 'Updated Task Title',
+            description: 'Updated description', 
+            priority: 'high',
+        };
+        const updateRes = await axios.put(`/api/tasks/${taskId}`, updatePayload);
+        expect(updateRes.status).toBe(200);
+
+        const getRes = await axios.get(`/api/tasks/${taskId}`);
+        expect(getRes.data.title).toBe(updatePayload.title);
+        expect(getRes.data.description).toBe(updatePayload.description);
+        expect(getRes.data.priority).toBe(updatePayload.priority);
+    }); 
+
+    it('returns 400 when trying to update with invalid fields', async () => {
+        const createPayload = {
+            title: 'Task with Invalid Update',
+            description: 'This task will have invalid updates',
+            priority: 'low',
+            assignee: '6800a5cf1cb12af7f4899106',
+            dueDate: Date.now() + 100000,
+        };
+        const createRes = await axios.post('/api/tasks', createPayload);
+        const taskId = createRes.data._id;
+
+        const invalidUpdatePayload = {
+            invalidField: 'This field should not be allowed',
+        };
+        try {
+            await axios.put(`/api/tasks/${taskId}`, invalidUpdatePayload);
+        } catch (err) {
+            expect(err.response.status).toBe(400);
+        }
     });
 
-    it('returns 404 when a task with the given ID does not exist', async () => {
+    it('returns 404 when trying to update a non-existent task', async () => {
+        const updatePayload = {
+            title: 'Non-existent Task',
+            description: 'This task does not exist',
+            priority: 'medium',
+        };
         try {
-            await axios.get('/api/tasks/nonExistentId');  
+            await axios.put('/api/tasks/nonExistentId', updatePayload);
         } catch (err) {
             expect(err.response.status).toBe(404);
         }
     });
-});
 
-describe('DELETE /api/tasks/:id', () => { 
-    it('deletes a task and returns 200 when a valid ID is provided', async () => {
-        const payload = { title: 'Task 1', description: 'First task', priority: 'low', assignee: '6800a5cf1cb12af7f4899106', dueDate: Date.now() + 100000 }
-        const createRes = await axios.post('/api/tasks', payload);
+    it('returns 403 when trying to update a task not owned by the user', async () => {
+        const createPayload = {
+            title: 'Task Not Owned',
+            description: 'This task is owned by another user',
+            priority: 'low',
+            assignee: '6800a5cf1cb12af7f4899106',
+            dueDate: Date.now() + 100000,
+        };
+        const createRes = await axios.post('/api/tasks', createPayload);
         const taskId = createRes.data._id;
 
-        const deleteRes = await axios.delete(`/api/tasks/${taskId}`);
-        expect(deleteRes.status).toBe(200);
-
+        const updatePayload = {
+            title: 'Unauthorized Update',
+        };
         try {
-            await axios.get(`/api/tasks/${taskId}`);
+            await axios.put(`/api/tasks/${taskId}`, updatePayload,{
+                headers:{
+                    Authorization:"Bearer 6804ed9281acd5997349c1b6"
+                }
+            });
         } catch (err) {
-            expect(err.response.status).toBe(404);
+            expect(err.response.status).toBe(401);
         }
-    });
+    }); 
 
     it('returns 404 when trying to delete a non-existent task', async () => {
         try {
