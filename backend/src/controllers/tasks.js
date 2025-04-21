@@ -34,7 +34,7 @@ router.post("/tasks", async (req, res, next) => {
         updatedAt: Date.now()
     });
 
-    res.status(StatusCodes.CREATED).send(task);
+    return res.status(StatusCodes.CREATED).send(task);
 });
 
 router.get("/tasks", async (req,res,next)=>{ 
@@ -50,7 +50,6 @@ router.get("/tasks", async (req,res,next)=>{
         }
     }
     else{
-        const taskid = req.params.id
         const tasks = await TaskModel.find({
             $or: [
             { assignee: req.auth._id },
@@ -69,7 +68,7 @@ router.get("/tasks", async (req,res,next)=>{
             reason = {tasks: tasks}
         }
     }
-    res.status(status).header('authorization',req.header('authorization')).send(reason)
+    return res.status(status).header('authorization',req.header('authorization')).send(reason)
 })
 
 router.get("/tasks/:id", async (req,res,next)=>{ 
@@ -80,7 +79,6 @@ router.get("/tasks/:id", async (req,res,next)=>{
     var reason = ReasonPhrases.OK
     if (mongoose.Types.ObjectId.isValid(req.params.id) === false){
         res.status(StatusCodes.NOT_FOUND).header('authorization',req.header('authorization')).send({message:"Bad id"})
-        next()
         return
     }
     const id = req.auth._id
@@ -100,7 +98,7 @@ router.get("/tasks/:id", async (req,res,next)=>{
     }else {
         reason = task
     }
-    res.status(status).header('authorization',req.header('authorization')).send(reason)
+    return res.status(status).header('authorization',req.header('authorization')).send(reason)
 })
 
 router.put("/tasks/:id", async (req,res,next)=>{ 
@@ -111,10 +109,9 @@ router.put("/tasks/:id", async (req,res,next)=>{
     var reason = ReasonPhrases.OK
     if (!mongoose.Types.ObjectId.isValid(req.params.id)){
         res.status(StatusCodes.NOT_FOUND).header('authorization',req.header('authorization')).send({message:ReasonPhrases.NOT_FOUND})
-        next()
         return 
     }
-    if (validateOwnerUserTask(req.auth._id,req.params.id)) {
+    if (await validateOwnerUserTask(req.auth._id,req.params.id)) {
         var updatevals = req.body
         const fields = ['title','description','assignee','priority','status','dueDate']
         for (const [key,value] of Object.entries(updatevals)){
@@ -122,13 +119,13 @@ router.put("/tasks/:id", async (req,res,next)=>{
                 delete updatevals[key]
             }
         }
-        reason = await TaskModel.updateOne({_id:{$eq:req.params.id}},updatevals)
+        reason = await TaskModel.findByIdAndUpdate(req.params.id,updatevals,{new:true})
     } 
     else{
         status = StatusCodes.NOT_FOUND
         reason = {message:ReasonPhrases.NOT_FOUND}
     }
-    res.status(status).header('authorization',req.header('authorization')).send(reason)
+    return res.status(status).header('authorization',req.header('authorization')).send(reason)
 })
 
 router.delete("/tasks/:id", async (req, res, next) => {
@@ -162,7 +159,7 @@ router.delete("/tasks/:id", async (req, res, next) => {
         reason = { message: "Invalid ID format." };
     }
 
-    res.status(status).send(reason);
+    return res.status(status).send(reason);
 })
 
 
@@ -194,7 +191,7 @@ async function validation({ title, description, assignee, priority, dueDate, cre
     if (!user) {
         return { isValid: false, status: StatusCodes.BAD_REQUEST, reason: { message: "The user creating isn't a real user." } };
     }
-    cache.set(createdBy, user);
+    cacheUser(createdBy,user)
 
     user = cache.has(assignee)
         ? cache.get(assignee)
@@ -203,7 +200,7 @@ async function validation({ title, description, assignee, priority, dueDate, cre
     if (!user) {
         return { isValid: false, status: StatusCodes.BAD_REQUEST, reason: { message: "The assignee isn't a real user." } };
     }
-    cache.set(assignee, user);
+    cacheUser(assignee,user)
 
     return { isValid: true };
 }
@@ -226,4 +223,10 @@ async function validateOwnerUserTask(uid, task) {
         return false;
     }
 }
+
+function cacheUser(username, id, ttl=600000) {
+    cache.set(username, id);
+    setTimeout(() => cache.delete(username), ttl);
+}
+  
 export default router;
