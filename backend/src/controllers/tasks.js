@@ -9,7 +9,7 @@ const router = express.Router()
 var cache = new Map()
 
 
-router.post("/tasks", async (req, res, next) => {
+router.post("/tasks", async (req, res) => {
     const { title, description, assignee, priority, dueDate } = req.body;
     const _id = req.auth._id;
     const createdBy = _id
@@ -37,7 +37,7 @@ router.post("/tasks", async (req, res, next) => {
     return res.status(StatusCodes.CREATED).send(task);
 });
 
-router.get("/tasks", async (req,res,next)=>{ 
+router.get("/tasks", async (req,res)=>{ 
     /*
     This endpoint will not return jwt back.
      */
@@ -71,7 +71,7 @@ router.get("/tasks", async (req,res,next)=>{
     return res.status(status).header('authorization',req.header('authorization')).send(reason)
 })
 
-router.get("/tasks/:id", async (req,res,next)=>{ 
+router.get("/tasks/:id", async (req,res)=>{ 
     /*
     This endpoint will not return jwt back.
      */
@@ -101,7 +101,7 @@ router.get("/tasks/:id", async (req,res,next)=>{
     return res.status(status).header('authorization',req.header('authorization')).send(reason)
 })
 
-router.put("/tasks/:id", async (req,res,next)=>{ 
+router.put("/tasks/:id", async (req,res)=>{ 
     /*
     This endpoint will not return jwt back.
      */
@@ -111,6 +111,7 @@ router.put("/tasks/:id", async (req,res,next)=>{
         res.status(StatusCodes.NOT_FOUND).header('authorization',req.header('authorization')).send({message:ReasonPhrases.NOT_FOUND})
         return 
     }
+    
     if (await validateOwnerUserTask(req.auth._id,req.params.id)) {
         var updatevals = req.body
         const fields = ['title','description','assignee','priority','status','dueDate']
@@ -128,7 +129,7 @@ router.put("/tasks/:id", async (req,res,next)=>{
     return res.status(status).header('authorization',req.header('authorization')).send(reason)
 })
 
-router.delete("/tasks/:id", async (req, res, next) => {
+router.delete("/tasks/:id", async (req, res) => {
     var status = StatusCodes.OK;
     var reason = { _id: req.params.id };
 
@@ -215,10 +216,12 @@ async function validateUser(uid) {
 }
 
 async function validateOwnerUserTask(uid, task) {
-    if (await validateUser(uid) && mongoose.Types.ObjectId.isValid(task)) {
+    const validuser = await validateUser(uid)
+    if (validuser && mongoose.Types.ObjectId.isValid(task)) {
         const taskDoc = await TaskModel.findById(task);
         if (!taskDoc) return false; // Handle case where task is not found
-        return taskDoc.createdBy === uid;
+        console.log(taskDoc.createdBy + " " + uid )
+        return taskDoc.createdBy.toString() === uid;
     } else {
         return false;
     }
