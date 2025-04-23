@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Button, TextField, Typography  } from '@mui/material';
 import landscape from "../assets/tree2.png"
+import { login } from '../services/authService';
 function Home() {
+    const [username, setUsername] = useState()
+    const [password, setPassword] = useState()
+
     const ratio = 45
     const other = 100 - ratio
     const sx1 = {
@@ -40,10 +44,12 @@ function Home() {
             </Box>
 
             <Typography variant='h5'> Welcome to Smart-Tasker! <br/> Please Sign-In </Typography>
-            <TextField required={true} label={"Email or Username"} sx={{...sx1,background:"white",borderRadius:"5px"}} />
-            <TextField required={true} label={"Password"} sx={{...sx1,background:"white",borderRadius:"5px"}} type='password'/>
+            <TextField required={true} value={username} label={"Username"} sx={{...sx1,background:"white",borderRadius:"5px"}} />
+            <TextField required={true} value={password} label={"Password"} sx={{...sx1,background:"white",borderRadius:"5px"}} type='password'/>
             <Button variant='contained' 
-            
+            onClick={async (event)=>{
+                login(username,password,(event)=>{console.log("here")})
+            }}
             sx={{
                 width:"50%",
                 height:"5%",
