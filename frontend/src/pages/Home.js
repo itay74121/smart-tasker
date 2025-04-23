@@ -3,8 +3,8 @@ import { Box, Button, TextField, Typography  } from '@mui/material';
 import landscape from "../assets/tree2.png"
 import { login } from '../services/authService';
 function Home() {
-    const [username, setUsername] = useState()
-    const [password, setPassword] = useState()
+    const [username, setUsername] = useState("")
+    const [password, setPassword] = useState("")
 
     const ratio = 45
     const other = 100 - ratio
@@ -44,11 +44,14 @@ function Home() {
             </Box>
 
             <Typography variant='h5'> Welcome to Smart-Tasker! <br/> Please Sign-In </Typography>
-            <TextField required={true} value={username} label={"Username"} sx={{...sx1,background:"white",borderRadius:"5px"}} />
-            <TextField required={true} value={password} label={"Password"} sx={{...sx1,background:"white",borderRadius:"5px"}} type='password'/>
+            <TextField required={true} onChange={(e)=>{setUsername(e.target.value)}} label={"Username"} sx={{...sx1,background:"white",borderRadius:"5px"}} />
+            <TextField required={true} onChange={(e)=>{setPassword(e.target.value)}} label={"Password"} sx={{...sx1,background:"white",borderRadius:"5px"}} type='password'/>
             <Button variant='contained' 
             onClick={async (event)=>{
-                login(username,password,(event)=>{console.log("here")})
+                console.log(username,password)
+                login(username,password,(event)=>{
+                    console.log(event.headers.Authorization)
+                })
             }}
             sx={{
                 width:"50%",
