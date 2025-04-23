@@ -27,6 +27,7 @@ export async function mongooseConnected(req,res,next) {
         await connectionPromise
     }
   } catch (error) {
+    console.log(error)
   }
   finally{
     next()
