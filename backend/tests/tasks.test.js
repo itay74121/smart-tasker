@@ -1,7 +1,7 @@
 const axios = require('axios');
 
-
-axios.defaults.baseURL = 'http://localhost:3000'; // Set the base URL for all requests
+const deployUrl = "https://smart-tasker-2ntd.onrender.com:10000"
+axios.defaults.baseURL = deployUrl; // Set the base URL for all requests
 const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Iml0YXk3NDEyMSIsIl9pZCI6IjY4MDBhNWNmMWNiMTJhZjdmNDg5OTEwNiIsImlhdCI6MTc0NTIyNDUxMCwiZXhwIjoxNzQ4MTA0NTEwfQ.Om_VE4Bdr2M6hND9tNIx-I2Iv_AZ6iDAQWhDGCvL9WQ';
 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // Add the token to the Authorization header
 describe('POST /api/tasks', () => {
