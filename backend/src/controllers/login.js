@@ -24,7 +24,7 @@ router.post("/login",(req,res,next)=>{
             _id = res._id
         }).catch((reason)=>{
             status = StatusCodes.INTERNAL_SERVER_ERROR
-            desc = ReasonPhrases.INTERNAL_SERVER_ERROR
+            desc = reason
         }).finally(()=>{
             var s = res.status(status)
             if (status === StatusCodes.ACCEPTED){
