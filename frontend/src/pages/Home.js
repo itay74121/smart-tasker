@@ -49,9 +49,7 @@ function Home() {
             <Button variant='contained' 
             onClick={async (event)=>{
                 console.log(username,password)
-                login(username,password,(event)=>{
-                    console.log(event.headers.Authorization)
-                })
+                login(username,password)
             }}
             sx={{
                 width:"50%",
