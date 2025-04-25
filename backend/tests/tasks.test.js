@@ -1,9 +1,12 @@
 const axios = require('axios');
+require('dotenv').config(); // Load environment variables from .env
 
-const deployUrl = "https://smart-tasker-2ntd.onrender.com"
+const deployUrl = process.env.TESTING === "true" ? process.env.TEST_BASE_URL : process.env.DEPLOY_URL;
 axios.defaults.baseURL = deployUrl; // Set the base URL for all requests
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Iml0YXk3NDEyMSIsIl9pZCI6IjY4MDBhNWNmMWNiMTJhZjdmNDg5OTEwNiIsImlhdCI6MTc0NTIyNDUxMCwiZXhwIjoxNzQ4MTA0NTEwfQ.Om_VE4Bdr2M6hND9tNIx-I2Iv_AZ6iDAQWhDGCvL9WQ';
-axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // Add the token to the Authorization header
+//const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Iml0YXk3NDEyMSIsIl9pZCI6IjY4MDBhNWNmMWNiMTJhZjdmNDg5OTEwNiIsImlhdCI6MTc0NTIyNDUxMCwiZXhwIjoxNzQ4MTA0NTEwfQ.Om_VE4Bdr2M6hND9tNIx-I2Iv_AZ6iDAQWhDGCvL9WQ';
+//axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // Add the token to the Authorization header
+axios.defaults.headers.common['Cookie'] = 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Iml0YXk3NDEyMSIsIl9pZCI6IjY4MDBhNWNmMWNiMTJhZjdmNDg5OTEwNiIsImlhdCI6MTc0NTQ5MTg2NiwiZXhwIjoxNzQ4MzcxODY2fQ.mzMqGL_8aEqukDv2or0y7wgPWRaGTfkHDIab72sJL-E'
+
 describe('POST /api/tasks', () => {
     it('creates a task and returns 201 + task body', async () => {
         const payload = {

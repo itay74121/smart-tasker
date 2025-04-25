@@ -8,8 +8,12 @@ export const silence = (err, req, res, next) => {
   }
 
 export const express_jwt_middlewear = expressjwt({
-      algorithms:["HS256"],
-      secret:process.env.SECRET
+      algorithms:   ["HS256"],
+      secret: process.env.SECRET,
+      getToken: req => {
+        return req.cookies.token
+      }
+
   }).unless({
       path:["/api/health","/api/register","/api/login"]
   })

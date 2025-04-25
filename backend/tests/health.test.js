@@ -1,4 +1,6 @@
-const deployUrl = "https://smart-tasker-2ntd.onrender.com"
+require('dotenv').config(); // Load environment variables from .env
+
+const deployUrl = process.env.TESTING === true ? process.env.TEST_BASE_URL : process.env.DEPLOY_URL;
 
 describe("", () => {  
     test("Health check", async () => {

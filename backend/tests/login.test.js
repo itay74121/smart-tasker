@@ -1,18 +1,21 @@
 const axios = require('axios')
+require('dotenv').config(); // Load environment variables from .env
 
-const deployUrl = "https://smart-tasker-2ntd.onrender.com"
+const deployUrl = process.env.TEST_BASE_URL || "https://smart-tasker-2ntd.onrender.com";
 axios.defaults.baseURL = deployUrl; // Set the base URL for all requests
-describe("Register Testing",()=>{
-    test("test the register endpoint working",async ()=>{
-        const response = await axios.post('http://localhost:3000/api/login',{
+
+describe("login Testing",()=>{
+    test("test the login endpoint working",async ()=>{
+        await axios.post(`/api/login`,{
             username:"itay74121",
-            passwordhash:"6545665564156516516156516",
-        })
+            passwordhash:"123456",
+        },{timeout:10000})
         .then(res=>{
             expect(res.status).toEqual(202);   
-            console.log(res.headers )
+            console.log(res.headers['set-cookie'])
         })
         .catch(reason=>{
+            console.log(reason)
         })  
-    })
+    },10*1000)
 })
