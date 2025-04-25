@@ -220,7 +220,6 @@ async function validateOwnerUserTask(uid, task) {
     if (validuser && mongoose.Types.ObjectId.isValid(task)) {
         const taskDoc = await TaskModel.findById(task);
         if (!taskDoc) return false; // Handle case where task is not found
-        console.log(taskDoc.createdBy + " " + uid )
         return taskDoc.createdBy.toString() === uid;
     } else {
         return false;

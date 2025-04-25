@@ -1,7 +1,7 @@
 const axios = require('axios')
 require('dotenv').config(); // Load environment variables from .env
 
-const deployUrl = process.env.TEST_BASE_URL || "https://smart-tasker-2ntd.onrender.com";
+const deployUrl = process.env.TESTING === "true" ? process.env.TEST_BASE_URL : process.env.DEPLOY_URL;
 axios.defaults.baseURL = deployUrl; // Set the base URL for all requests
 
 describe("login Testing",()=>{

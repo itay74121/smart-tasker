@@ -26,7 +26,7 @@ router.post("/register", async (req,res,next)=>{
                 password:passwordhash,
                 role:role
             }).then((val)=>{
-                console.log(val)
+                
             }).catch((reason)=>{
                 status = StatusCodes.INTERNAL_SERVER_ERROR
                 reason = ReasonPhrases.INTERNAL_SERVER_ERROR
