@@ -13,7 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors({origin:"*"}))
+app.use(cors({origin: ["http://localhost"]}))
 app.use(logger);
 app.use(cookieParser())
 app.use(express_jwt_middlewear)
