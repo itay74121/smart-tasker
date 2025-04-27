@@ -13,7 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors({origin: ["http://localhost"],credentials:true}))
+app.use(cors({origin: ["http://localhost",'http://trainerai.ddns.net'],credentials:true}))
 app.use(logger);
 app.use(cookieParser())
 app.use(express_jwt_middlewear)

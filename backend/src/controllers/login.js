@@ -30,12 +30,13 @@ router.post("/login",(req,res,next)=>{
             if (status === StatusCodes.ACCEPTED){
                 var secret = process.env.SECRET
                 var token = jsonwb.sign({username:username, _id:_id},secret,{"algorithm":"HS256",expiresIn:2*60*24*1000})
-                s.cookie('token',token,{
+                res.cookie('token', token, {
                     httpOnly: true,
-                    secure: true,
-                    sameSite:'lax',
-                    maxAge: 24 * 60 * 60 * 1000 * 2 // two days
-                })
+                    secure: false,        // allow on localhost HTTP
+                    sameSite: 'none',     // send on cross-site XHR
+                    maxAge: 2 * 24 * 60 * 60 * 1000,
+                    path: '/'
+                  });
             }
             s.send({message:desc})
             next()
