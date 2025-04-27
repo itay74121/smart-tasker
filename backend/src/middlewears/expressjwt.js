@@ -11,7 +11,8 @@ export const express_jwt_middlewear = expressjwt({
       algorithms:   ["HS256"],
       secret: process.env.SECRET,
       getToken: req => {
-        return req.cookies.token
+        console.log(req.cookies)
+        return req.cookies['token']
       }
 
   }).unless({
