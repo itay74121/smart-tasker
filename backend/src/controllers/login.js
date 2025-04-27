@@ -32,7 +32,7 @@ router.post("/login",(req,res,next)=>{
                 var token = jsonwb.sign({username:username, _id:_id},secret,{"algorithm":"HS256",expiresIn:2*60*24*1000})
                 res.cookie('token', token, {
                     httpOnly: true,
-                    secure: false,        // allow on localhost HTTP
+                    secure: true,        // allow on localhost HTTP
                     sameSite: 'none',     // send on cross-site XHR
                     maxAge: 2 * 24 * 60 * 60 * 1000,
                     path: '/'
