@@ -41,9 +41,9 @@ function Dashboard() {
               </List>
               <SettingsOutlinedIcon sx={{position:'absolute',marginTop:'95vh'}}/>
             </Drawer>
-           <DueTasks/>
         </Toolbar>
       </AppBar>
+      <DueTasks/>
     </Box>
   );
 }
