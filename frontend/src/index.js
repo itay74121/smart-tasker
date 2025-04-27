@@ -4,10 +4,26 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom'
+import { useTheme } from '@emotion/react';
+import { createTheme, ThemeProvider } from '@mui/material';
 const root = ReactDOM.createRoot(document.getElementById('root'));
+const theme = createTheme({
+  palette:{
+     primary: {
+      main:"rgba(163,224,199,255)"
+     },
+     secondary:{
+      main:"#0b6a66"
+     }
+  }
+})
 root.render(
   <React.StrictMode>
-    <BrowserRouter><App /></BrowserRouter>
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <App />
+      </ThemeProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );
 

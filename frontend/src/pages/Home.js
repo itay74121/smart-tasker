@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { Box, Button, TextField, Typography  } from '@mui/material';
 import landscape from "../assets/tree2.png"
 import { login } from '../services/authService';
+import { useNavigate } from 'react-router-dom'
 function Home() {
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
-
+    const nav = useNavigate()
     const ratio = 45
     const other = 100 - ratio
     const sx1 = {
@@ -49,7 +50,7 @@ function Home() {
             <Button variant='contained' 
             onClick={async (event)=>{
                 console.log(username,password)
-                login(username,password)
+                login(username,password,nav)
             }}
             sx={{
                 width:"50%",
